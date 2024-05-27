@@ -11,8 +11,6 @@ import shutil
 import subprocess
 import logging
 
-CONFIGCACHE=None
-
 def set_logging(loglevel, logfile):
     # Setting the loglevel
     numeric_level = getattr(logging, args.loglevel.upper(), None)
@@ -158,7 +156,7 @@ def main_sync(args):
 parser = argparse.ArgumentParser(description="Ben's Homepage Generator.")
 parser.add_argument('--loglevel', help='Setting the loglevel.', choices=['critical', 'error', 'warning', 'info', 'debug'], default='INFO')
 parser.add_argument('--logfile', help='Output logs to given logfile.')
-parser.add_argument('projectdir', help="Path to the project folder")
+parser.add_argument('projectdir', help="Path to the project folder. There needs to be 'templates' and a 'content' folder.")
 
 subparsers = parser.add_subparsers()
 sub_gen = subparsers.add_parser('generate', aliases=['gen'], description='Generate the site.', help='Generate the site.')
