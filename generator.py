@@ -62,7 +62,9 @@ def parse_markdown_with_front_matter(file_path):
 def main_generate(args):
     set_logging(args.loglevel, args.logfile)
 
-    config = get_config(args.projectdir)
+    projectdir = os.path.abspath(args.projectdir)
+
+    config = get_config(projectdir)
 
     # Additional variables
     var = {}
@@ -71,14 +73,14 @@ def main_generate(args):
             var[v] = config['var'][v]
 
     # Emptying build folder
-    builddir = '{}/build/'.format(args.projectdir)
+    builddir = '{}/build/'.format(projectdir)
     if os.path.exists(builddir):
         logging.debug('Removing the build folder.')
         shutil.rmtree(builddir)
 
     # Walking the content folder, copying and rendering
-    for root, dirs, files in os.walk('{}/{}'.format(args.projectdir, 'content/')):
-        dest = '{}{}'.format(builddir, root.replace('{}/content/'.format(args.projectdir), ''))
+    for root, dirs, files in os.walk('{}/{}'.format(projectdir, 'content/')):
+        dest = '{}{}'.format(builddir, root.replace('{}/content/'.format(projectdir), ''))
         os.mkdir(dest)
         for file in files:
             if not file.endswith('md'):
@@ -95,7 +97,7 @@ def main_generate(args):
                 if 'template' not in front_matter:
                     logging.debug('template not set in source file')
                     template = default_template
-                elif not os.path.exists('{}/templates/{}'.format(args.projectdir, front_matter['template'])):
+                elif not os.path.exists('{}/templates/{}'.format(projectdir, front_matter['template'])):
                     logging.warning('Invalid template file "{}" for source "{}". Fallback to default template "{}".'.format(front_matter['template'], file_path, default_template))
                     template = default_template
                 else:
@@ -103,7 +105,7 @@ def main_generate(args):
                     template = front_matter['template']
 
                 # Template environment
-                env = jinja2.Environment(loader=jinja2.FileSystemLoader('{}/templates'.format(args.projectdir), encoding='utf8'))
+                env = jinja2.Environment(loader=jinja2.FileSystemLoader('{}/templates'.format(projectdir), encoding='utf8'))
                 template = env.get_template(template)
 
                 var['title'] = get_first_heading(raw)
@@ -137,9 +139,11 @@ def main_generate(args):
 def main_sync(args):
     set_logging(args.loglevel, args.logfile)
 
-    builddir = '{}/build/'.format(args.projectdir)
+    projectdir = os.path.abspath(args.projectdir)
 
-    config = get_config(args.projectdir)
+    builddir = '{}/build/'.format(projectdir)
+
+    config = get_config(projectdir)
 
     dest = config['sync'][args.environment]['dest']
 
